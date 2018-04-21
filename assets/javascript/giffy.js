@@ -6,30 +6,13 @@ window.onload = function () {
 
 	$(document).on('click', '#addBtn', addCharacter);
 	$(document).on('click', '.sellist', mainProcess);
+	$(document).on('click', '.resitem', gifswitch);
 
 	// used in Program
 	var selectionArray = ["Trump"];
 	var resulObj = [];
 	var offset = 0;
 	var prevSeletion = "";
-
-	var items = [
-		{ name: 'Edward', value: 21 },
-		{ name: 'Sharpe', value: 37 },
-		{ name: 'And', value: 45 },
-		{ name: 'The', value: -12 },
-		{ name: 'Magnetic', value: 13 },
-		{ name: 'Zeros', value: 37 }
-	];
-
-
-
-	// sort by value
-	items.sort(function (a, b) {
-		return a.value - b.value;
-	});
-
-
 
 	//Display Added Buttons
 	function displayBtns() {
@@ -42,9 +25,10 @@ window.onload = function () {
 		}
 	}
 
-	// Read the Input text and validate if its not spaces or null and then create button and append to DOM
+	// Read the Input text and validate if its not spaces or null and then create button and append to DOM , if the input already exists - simply ignore
 	function addCharacter() {
 		var input = $('#inputText').val();
+		$('#inputText').val("");
 		newFunctiion("chaitu");
 		if (input === "" || (/^\s*$/.test(input)) || input.length < 2) {
 			alert("Enter valid text : Non spaces & minimum of 2 characters");
@@ -70,6 +54,7 @@ window.onload = function () {
 
 	function mainProcess() {
 		var selText = $(this).text();
+		// check if same button selected as previous, if so fetch next 20 gifs from API by setting offset
 		if (selText === prevSeletion) {
 			offset += 20;
 		} else {
@@ -78,6 +63,7 @@ window.onload = function () {
 		}
 		var queryURL = buildqueryURL(selText, offset);
 		callGiphyAPI(queryURL);
+
 	};
 
 	function buildqueryURL(input, offset) {
@@ -92,11 +78,12 @@ window.onload = function () {
 			url: queryURL,
 			method: "GET",
 		}).then(function (response) {
-			domUpdates(response);
+			fetchResponse(response);
+			domUpdates();
 		});
 	};
 
-	function domUpdates(resp) {
+	function fetchResponse(resp) {
 
 		//var resp = result;
 		var stillGif;
@@ -110,23 +97,49 @@ window.onload = function () {
 
 		for (var i = 0; i < resp.data.length; i++) {
 
+			// Save gif , still image, height, widht & rating and add to array
 			giffy = resp.data[i].images.original.url;
 			stillGif = resp.data[i].images.original_still.url;
 			imgWidth = resp.data[i].images.original_still.width;
 			imgHeight = resp.data[i].images.original_still.height;
 			rating = resp.data[i].rating;
+			title = resp.data[i].title;
 			gifObj = {
 				"giffy": giffy,
 				"stillGif": stillGif,
 				"imgeHeigh": imgHeight,
 				"imgeWidth": imgWidth,
 				"gifStatus": "still",
-				"rating": rating
+				"rating": rating,
+				"title": title
 			};
 			resulObj.push(gifObj)
 		};
-
 		console.log(resulObj);
+	};
+
+	// This function reads the array saved from API call and creates required HTML tages to display results	
+	function gifswitch() {
+
+	};
+
+
+	// This function reads the array saved from API call and creates required HTML tages to display results	
+	function domUpdates() {
+
+		var i;
+		var eImage;
+		var eRating;
+		var newDiv
+
+		for (i = offset; i < resulObj.length ; i++) {
+			var eRating = $('<h5 class="card-title">');
+			eRating.html("Title: " + resulObj[i].title + '<br>' + "Rating: " + resulObj[i].rating);
+			var eImage = $('<img class="card-img-top" src="' + resulObj[i].stillGif + '">');
+			eImage.attr("item", i);
+			var newDiv = $('<div class="resitem card ml-3 border-0">').append(eImage).append($('<div class="card-body pl-0 pt-0">').append(eRating));
+			$('.serResuls').append(newDiv);
+		}
 	};
 
 	// on start display buttons
