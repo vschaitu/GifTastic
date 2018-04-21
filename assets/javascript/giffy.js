@@ -1,6 +1,7 @@
-// Onload - Check for user input
+// Onload - Check for user action
 //    If button clicked - Start or Restart the Quiz 
 //    If Answer option Selected - Check the answer if correct & then go to next question etc.
+//    If Chooses a gif - Switch between still & gif
 
 window.onload = function () {
 
