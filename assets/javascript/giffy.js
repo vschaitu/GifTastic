@@ -29,7 +29,6 @@ window.onload = function () {
 	function addCharacter() {
 		var input = $('#inputText').val();
 		$('#inputText').val("");
-		newFunctiion("chaitu");
 		if (input === "" || (/^\s*$/.test(input)) || input.length < 2) {
 			alert("Enter valid text : Non spaces & minimum of 2 characters");
 			return false;
@@ -41,10 +40,6 @@ window.onload = function () {
 		}
 	};
 
-	function newFunctiion(name) {
-		console.log(name);
-		console.log("Hi");
-	};
 
 	// When user Clicks the selected button
 	//  Read the Selection Button text
@@ -60,12 +55,15 @@ window.onload = function () {
 		} else {
 			prevSeletion = selText;
 			offset = 0;
+			resulObj = [];
+			$('.serResuls').empty();
 		}
 		var queryURL = buildqueryURL(selText, offset);
 		callGiphyAPI(queryURL);
 
 	};
 
+	// function to build query URL and return
 	function buildqueryURL(input, offset) {
 		var apiKey = "8QU9AB0YiplJbck1GxBrDxoUE6l8AIoi";
 		var queryURL = "https://api.giphy.com/v1/gifs/search?api_key=" + apiKey + "&q=" + input + "&limit=20&offset=" + offset + "&rating=PG-13&lang=en";
@@ -73,6 +71,7 @@ window.onload = function () {
 		return queryURL;
 	};
 
+	// This function calls the API and then execute functions to update DOM tree with response
 	function callGiphyAPI(queryURL) {
 		$.ajax({
 			url: queryURL,
@@ -83,6 +82,7 @@ window.onload = function () {
 		});
 	};
 
+	// This fetches response and stores items we need in global array
 	function fetchResponse(resp) {
 
 		//var resp = result;
@@ -118,8 +118,17 @@ window.onload = function () {
 		console.log(resulObj);
 	};
 
-	// This function reads the array saved from API call and creates required HTML tages to display results	
+	// This function switch between static/gif image content
 	function gifswitch() {
+		var i = $(this).children('img').attr("item");
+
+		if (resulObj[i].gifStatus === "still") {
+			$(this).children('img').attr("src",resulObj[i].giffy);
+			resulObj[i].gifStatus = "gif";
+		} else {
+			$(this).children('img').attr("src",resulObj[i].stillGif);
+			resulObj[i].gifStatus = "still";
+		};
 
 	};
 
@@ -133,11 +142,12 @@ window.onload = function () {
 		var newDiv
 
 		for (i = offset; i < resulObj.length ; i++) {
-			var eRating = $('<h5 class="card-title">');
+			eRating = $('<h5 class="card-title">');
 			eRating.html("Title: " + resulObj[i].title + '<br>' + "Rating: " + resulObj[i].rating);
-			var eImage = $('<img class="card-img-top" src="' + resulObj[i].stillGif + '">');
+			eImage = $('<img class="card-img-top" src="' + resulObj[i].stillGif + '">');
 			eImage.attr("item", i);
-			var newDiv = $('<div class="resitem card ml-3 border-0">').append(eImage).append($('<div class="card-body pl-0 pt-0">').append(eRating));
+			newDiv = $('<div class="resitem card ml-3 border-0">').append(eImage).append($('<div class="card-body pl-0 pt-0">').append(eRating));
+			
 			$('.serResuls').append(newDiv);
 		}
 	};

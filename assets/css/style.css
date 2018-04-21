@@ -7,7 +7,7 @@ h4 {
 }
 
 img {
-	
+	cursor: pointer;
 	max-height: 400px;
 	max-width: 400px;
 }
